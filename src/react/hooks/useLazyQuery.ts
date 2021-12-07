@@ -45,7 +45,9 @@ export function useLazyQuery<TData = any, TVariables = OperationVariables>(
     );
     setExecution((execution) => {
       if (execution.called) {
-        result && result.refetch(executeOptions?.variables);
+        console.log(executeOptions?.variables);
+        resolve(result.refetch(executeOptions?.variables) as any);
+        return execution;
       }
 
       return {
@@ -66,10 +68,13 @@ export function useLazyQuery<TData = any, TVariables = OperationVariables>(
     fetchPolicy: execution.called ? options?.fetchPolicy : 'standby',
     skip: undefined,
   });
+
   useEffect(() => {
     const { resolves } = execution;
     if (!result.loading && resolves.length) {
-      setExecution((execution) => ({ ...execution, resolves: [] }));
+      setExecution((execution) => {
+        return { ...execution, resolves: [] };
+      });
       resolves.forEach((resolve) => resolve(result));
     }
   }, [result, execution]);
