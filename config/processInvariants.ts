@@ -127,9 +127,7 @@ function transform(code: string, file: string) {
           return;
         }
 
-        const newArgs = [
-          getErrorCode(file, node),
-        ];
+        const newArgs = [getErrorCode(file, node)];
         newArgs.push(...getNonStringArguments(node.arguments[0]));
 
         return b.conditionalExpression(
