@@ -24,6 +24,9 @@ type Node = recast.types.namedTypes.Node;
 type NumericLiteral = recast.types.namedTypes.NumericLiteral;
 type CallExpression = recast.types.namedTypes.CallExpression;
 type NewExpression = recast.types.namedTypes.NewExpression;
+type BinaryExpression = recast.types.namedTypes.BinaryExpression;
+type Argument = typeof Node.arguments[0];
+
 let nextErrorCode = 1;
 
 const errorCodeManifest = b.objectExpression([
@@ -54,6 +57,24 @@ function getErrorCode(
     ])),
   );
   return numLit;
+}
+
+function getNonStringArguments<T>(
+  argument: Argument,
+): Argument[] {
+  switch (argument.type) {
+    case "NumericLiteral":
+    case "Literal":
+    case "StringLiteral":
+      return [];
+
+    case "BinaryExpression":
+      const { left, right } = argument as BinaryExpression;
+      return getNonStringArguments(left).concat(getNonStringArguments(right));
+
+    default:
+      return [argument];
+  }
 }
 
 function transform(code: string, file: string) {
@@ -106,7 +127,10 @@ function transform(code: string, file: string) {
           return;
         }
 
-        const newArgs = [getErrorCode(file, node)];
+        const newArgs = [
+          getErrorCode(file, node),
+        ];
+        newArgs.push(...getNonStringArguments(node.arguments[0]));
 
         return b.conditionalExpression(
           makeNodeEnvTest(),
