@@ -59,7 +59,7 @@ function getErrorCode(
   return numLit;
 }
 
-function getNonStringArguments<T>(
+function getNonStringArguments(
   argument: Argument,
 ): Argument[] {
   switch (argument.type) {
